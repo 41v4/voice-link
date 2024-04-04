@@ -1,5 +1,3 @@
-import sys
-
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QMainWindow, QTabWidget
 
@@ -19,8 +17,12 @@ class MainWindow(QMainWindow):
         # Create the tab widget
         tabs = QTabWidget()
         self.audio_tab = AudioTab()  # Keep a reference to update it
+        self.transcription_tab = TranscriptionTab()
+
+        self.audio_tab.signals.recording.connect(self.transcription_tab.handle_recording)
+
         tabs.addTab(self.audio_tab, "Audio")
-        tabs.addTab(TranscriptionTab(), "Transcription")
+        tabs.addTab(self.transcription_tab, "Transcription")
         tabs.addTab(AutomationTab(), "Automation")
         tabs.addTab(LoggingTab(), "Logging")
 

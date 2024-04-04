@@ -1,13 +1,19 @@
-from PySide6.QtCore import QSize
+from io import BytesIO
+
+from PySide6.QtCore import QObject, QSize, Signal
 from PySide6.QtWidgets import (QComboBox, QLabel, QProgressBar, QPushButton,
                                QStyle, QVBoxLayout, QWidget)
 
 from client.utils.audio_utils import AudioRecorder
 
 
+class AudioTabSignals(QObject):
+    recording = Signal(BytesIO)  # Signal emitting recording data as BytesIO object
+
 class AudioTab(QWidget):
     def __init__(self):
         super().__init__()
+        self.signals = AudioTabSignals()
         self.layout = QVBoxLayout()
 
         self.recorder = AudioRecorder()
@@ -106,7 +112,8 @@ class AudioTab(QWidget):
         self.record_audio_button.setIcon(self.media_stop_icon_style)
     
     def update_stop_recording_status(self, message):
-        recording = self.recorder.stop_recording() # will need send this recording to transcription tab
+        recording_data = self.recorder.stop_recording() # will need send this recording to transcription tab
+        self.signals.recording.emit(recording_data)
         self.is_recording = False
         self.recording_progress.setVisible(False)  # Hide the progress bar when recording stops
         self.record_audio_status_label.setText(f"Status: {message}")
